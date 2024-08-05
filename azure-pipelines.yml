@@ -1,32 +1,50 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
- branches:
-   exclude:
-     - '*'
-pr:
- branches:
-  include:
-    - '*'
-stages:
-- stage: Build
-  jobs:
-  - job: PrintFile
-  pool:
-    name: Default 
-    demands:
-      - agent.name -equals WIN-4G3TNA4VMUF  
-    steps:
-    - powershell: |
-        Write-Host "Creating a sample file"
-        "Hello, Azure Pipelines!" | Out-File -FilePath print.txt
-      displayName: 'Create a sample file'
-      
-    - powershell: |
-        Write-Host "Printing the file contents"
-        Get-Content -Path print.txt
-      displayName: 'Print the file contents'
+  branches:
+    exclude:
+      - '*'
 
+pr:
+  branches:
+    include:
+      - '*'
+
+pool:
+  name: Default 
+  demands:
+    - agent.name -equals WIN-4G3TNA4VMUF  
+
+stages:
+- stage: ValidateComposeFile
+  jobs:
+  - job: Validate
+    steps:
+    - script: |
+        docker-compose config
+      displayName: 'Validate docker-compose.yml'
+
+- stage: BuildAndTest
+  dependsOn: ValidateComposeFile
+  jobs:
+  - job: Build
+    steps:
+    - task: DockerCompose@0
+      inputs:
+        action: 'Build services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Build Docker Services'
+
+    - task: DockerCompose@0
+      inputs:
+        action: 'Run services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Run Docker Services'
+
+    - script: |
+        docker-compose run my-service ./run-tests.sh
+      displayName: 'Run Tests'
+
+    - task: DockerCompose@0
+      inputs:
+        action: 'Down services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Tear Down Services'
