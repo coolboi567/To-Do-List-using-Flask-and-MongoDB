@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    exclude:
+      - '*'
+
+# pr:
+#   branches:
+#     include:
+#       - '*'
+
+pool:
+  name: Default 
+  demands:
+    - agent.name -equals WIN-4G3TNA4VMUF  
+
+stages:
+- stage: ValidateComposeFile
+  jobs:
+  - job: Validate
+    steps:
+    - script: |
+        docker-compose config
+      displayName: 'Validate docker-compose.yml'
+
+- stage: BuildAndTest
+  dependsOn: ValidateComposeFile
+  jobs:
+  - job: Build
+    steps:
+    - task: DockerCompose@0
+      inputs:
+        action: 'Build services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Build Docker Services'
+
+    - task: DockerCompose@0
+      inputs:
+        action: 'Run services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Run Docker Services'
+
+    - script: |
+        docker-compose run my-service ./run-tests.sh
+      displayName: 'Run Tests'
+
+    - task: DockerCompose@0
+      inputs:
+        action: 'Down services'
+        dockerComposeFile: 'docker-compose.yml'
+      displayName: 'Tear Down Services'
