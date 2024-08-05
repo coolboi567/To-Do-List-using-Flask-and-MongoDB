@@ -4,16 +4,29 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+ branches:
+   exclude:
+     - '*'
+pr:
+ branches:
+  include:
+    - '*'
+stages:
+- stage: Build
+  jobs:
+  - job: PrintFile
+  pool:
+    name: Default 
+    demands:
+      - agent.name -equals WIN-4G3TNA4VMUF  
+    steps:
+    - powershell: |
+        Write-Host "Creating a sample file"
+        "Hello, Azure Pipelines!" | Out-File -FilePath print.txt
+      displayName: 'Create a sample file'
+      
+    - powershell: |
+        Write-Host "Printing the file contents"
+        Get-Content -Path print.txt
+      displayName: 'Print the file contents'
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
