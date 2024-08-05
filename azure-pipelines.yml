@@ -3,10 +3,10 @@ trigger:
     exclude:
       - '*'
 
-pr:
-  branches:
-    include:
-      - '*'
+# pr:
+#   branches:
+#     include:
+#       - '*'
 
 pool:
   name: Default 
