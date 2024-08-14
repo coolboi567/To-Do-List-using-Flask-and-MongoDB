@@ -2,7 +2,9 @@ resources:
  repositories:
  - repository: Test_Reposity_test
    type: github
-   endpoint: myserviceconnection
+   endpoint: KishorABCodz
+   name: KishorABCodz/ToDo-List-using-Flask-and-MongoDB
+   ref: $(System.PullRequest.SourceBranch)
 trigger:
   branches:
     exclude:
@@ -22,7 +24,7 @@ stages:
 - stage: Checkout Test yaml
   jobs:
   - job: Checkout_source
-    steps:
+    steps: 
     
 
 - stage: BuildAndTest
