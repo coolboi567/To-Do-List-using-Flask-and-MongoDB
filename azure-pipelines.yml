@@ -14,7 +14,7 @@ resources:
       type: github
       endpoint: KishorABCodz
       name: KishorABCodz/ToDo-List-using-Flask-and-MongoDB
-      ref: $(System.PullRequest.SourceBranch)
+      ref: $(Build.SourceBranchName)  # Use SourceBranchName which doesn't include refs/heads/
 
 pool:
   name: Default 
