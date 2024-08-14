@@ -1,0 +1,37 @@
+trigger:
+  branches:
+    exclude:
+      - '*'
+
+pr:
+  branches:
+    include:
+      - '*'
+
+resources:
+  repositories:
+    - repository: Test_Reposity_test
+      type: github
+      endpoint: KishorABCodz
+      name: KishorABCodz/ToDo-List-using-Flask-and-MongoDB
+      ref: $(Build.SourceBranchName)  # Use SourceBranchName which doesn't include refs/heads/
+
+pool:
+  name: Default 
+  demands:
+    - agent.name -equals WIN-4G3TNA4VMUF  
+
+stages:
+- stage: CheckoutTest
+  jobs:
+  - job: Checkoutsource
+    steps:
+    - checkout: self
+    - checkout: Test_Reposity_test
+      path: Test_Reposity_testPath
+    - powershell: |
+        $workspacePath = "."
+        Get-ChildItem -Path $workspacePath -Recurse -File | ForEach-Object {
+        Write-Host $_.FullName
+        }
+      displayName: 'List all files in the workspace'
