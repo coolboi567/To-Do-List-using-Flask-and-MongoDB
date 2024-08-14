@@ -1,10 +1,3 @@
-resources:
- repositories:
- - repository: Test_Reposity_test
-   type: github
-   endpoint: KishorABCodz
-   name: KishorABCodz/ToDo-List-using-Flask-and-MongoDB
-   ref: $(System.PullRequest.SourceBranch)
 trigger:
   branches:
     exclude:
@@ -15,41 +8,30 @@ pr:
     include:
       - '*'
 
+resources:
+  repositories:
+    - repository: Test_Reposity_test
+      type: github
+      endpoint: KishorABCodz
+      name: KishorABCodz/ToDo-List-using-Flask-and-MongoDB
+      ref: $(System.PullRequest.SourceBranch)
+
 pool:
   name: Default 
   demands:
     - agent.name -equals WIN-4G3TNA4VMUF  
 
 stages:
-- stage: Checkout Test yaml
+- stage: CheckoutTest
   jobs:
-  - job: Checkout_source
-    steps: 
-    
-
-- stage: BuildAndTest
-  dependsOn: ValidateComposeFile
-  jobs:
-  - job: Build
+  - job: Checkoutsource
     steps:
-    - task: DockerCompose@0
-      inputs:
-        action: 'Build services'
-        dockerComposeFile: 'docker-compose.yml'
-      displayName: 'Build Docker Services'
-
-    - task: DockerCompose@0
-      inputs:
-        action: 'Run services'
-        dockerComposeFile: 'docker-compose.yml'
-      displayName: 'Run Docker Services'
-
-    - script: |
-        docker-compose run my-service ./run-tests.sh
-      displayName: 'Run Tests'
-
-    - task: DockerCompose@0
-      inputs:
-        action: 'Down services'
-        dockerComposeFile: 'docker-compose.yml'
-      displayName: 'Tear Down Services'
+    - checkout: self
+    - checkout: Test_Reposity_test
+      path: Test_Reposity_testPath
+    - powershell: |
+        $workspacePath = "."
+        Get-ChildItem -Path $workspacePath -Recurse -File | ForEach-Object {
+        Write-Host $_.FullName
+        }
+      displayName: 'List all files in the workspace'
