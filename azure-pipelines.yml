@@ -1,3 +1,8 @@
+resources:
+ repositories:
+ - repository: Test_Reposity_test
+   type: github
+   endpoint: myserviceconnection
 trigger:
   branches:
     exclude:
@@ -14,13 +19,11 @@ pool:
     - agent.name -equals WIN-4G3TNA4VMUF  
 
 stages:
-- stage: ValidateComposeFile
+- stage: Checkout Test yaml
   jobs:
-  - job: Validate
+  - job: Checkout_source
     steps:
-    - script: |
-        docker-compose config
-      displayName: 'Validate docker-compose.yml'
+    
 
 - stage: BuildAndTest
   dependsOn: ValidateComposeFile
